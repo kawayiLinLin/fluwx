@@ -64,6 +64,7 @@ const NSString *description = @"description";
 BOOL handleOpenURLByFluwx = YES;
 
 NSObject <FlutterPluginRegistrar> *_fluwxRegistrar;
+static FluwxPlugin *_sharedInstance = nil;
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar> *)registrar {
     _fluwxRegistrar = registrar;
@@ -75,6 +76,19 @@ NSObject <FlutterPluginRegistrar> *_fluwxRegistrar;
     [registrar addMethodCallDelegate:instance channel:channel];
 }
 
+
+
++ (void)notifyUniversalLinkUrl:(NSUserActivity *)userActivity {
+    if ([WXApi isWXAppInstalled]) {
+        BOOL result = [WXApi handleOpenUniversalLink:userActivity delegate:_sharedInstance];
+        if (!result) {
+            NSLog(@"Failed to handle universal link.");
+        }
+    } else {
+        NSLog(@"WXApp is not installed.");
+    }
+}
+
 - (instancetype)initWithChannel:(FlutterMethodChannel *)channel {
     self = [super init];
     if (self) {
@@ -84,6 +98,7 @@ NSObject <FlutterPluginRegistrar> *_fluwxRegistrar;
         _isRunning = NO;
         thumbnailWidth = 150;
         _attemptToResumeMsgFromWxFlag = NO;
+        _sharedInstance = self;
 #if WECHAT_LOGGING
         [WXApi startLogByLevel:WXLogLevelDetail logBlock:^(NSString *log) {
             [self logToFlutterWithDetail:log];
@@ -455,6 +470,7 @@ NSObject <FlutterPluginRegistrar> *_fluwxRegistrar;
     [WXApi handleOpenUniversalLink:userActivity delegate:self];
 }
 #endif
+
 
 - (void)handleOpenUrlCall:(FlutterMethodCall *)call
                    result:(FlutterResult)result {
