@@ -471,7 +471,6 @@ static FluwxPlugin *_sharedInstance = nil;
 }
 #endif
 
-
 - (void)handleOpenUrlCall:(FlutterMethodCall *)call
                    result:(FlutterResult)result {
     OpenWebviewReq *req = [[OpenWebviewReq alloc] init];
